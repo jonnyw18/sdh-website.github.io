@@ -19,3 +19,28 @@
     width: 100%;
     height: 400px;
 }
+
+
+.careers__benefits-list-item {
+    list-style-type: circle 
+}
+
+.careers__benefits-ul {
+    margin-left: 20px !important
+}
+
+.services__service-card {
+    transition: box-shadow .5s;
+}
+
+.services__service-card:hover {
+    box-shadow: 0 0 60px rgba(0,0,0,.17);
+    border-radius: 5px;
+}
+
+.sections__section-body {
+    text-decoration: none !important;
+    color: unset !important;
+    font-weight: unset !important;
+
+}
