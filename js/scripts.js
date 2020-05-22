@@ -790,10 +790,9 @@ mr = (function (mr, $, window, document){
 }(mr, jQuery, window, document));
 
 //////////////// Forms
-
 mr = (function (mr, $, window, document){
     "use strict";
-    
+
     mr.forms                 = mr.forms || {};
     mr.forms.captcha         = {};
     mr.forms.captcha.widgets = [];
@@ -917,8 +916,6 @@ mr = (function (mr, $, window, document){
             }
 
         });
-
-
     };
     
     mr.forms.submit = function(e){
@@ -932,8 +929,9 @@ mr = (function (mr, $, window, document){
             submitButton  = thisForm.find('button[type="submit"], input[type="submit"]'),
             error         = 0,
             originalError = thisForm.attr('original-error'),
-            captchaUsed   = thisForm.find('div.recaptcha').length ? true:false,
             successRedirect, formError, formSuccess, errorText, successText;
+
+        // var payload = 
 
         body.find('.form-error, .form-success').remove();
         submitButton.attr('data-text', submitButton.text());
@@ -1039,11 +1037,22 @@ mr = (function (mr, $, window, document){
                 
                 // Create a new loading spinner in the submit button.
                 submitButton.addClass('btn--loading');
-
+                emailjs.init('user_nQYE6ybbJMYi3qfsYWYnA');
                 jQuery.ajax({
                     type: "POST",
-                    url: (formAction !== "" ? formAction : "mail/mail.php"),
-                    data: thisForm.serialize()+"&url="+window.location.href+"&captcha="+captchaUsed,
+                    url: 'https://api.emailjs.com/api/v1.0/email/send',
+                    data: JSON.stringify({
+                        service_id: "default_service" ,
+                        template_id: "tech_onboarding",
+                        user_id: "user_nQYE6ybbJMYi3qfsYWYnA",
+                        template_params: { 
+                            form_location: e.target.id,
+                            name: e.target.name.value,
+                            number: e.target.number.value,
+                            email: e.target.email.value,
+                            message: e.target.message.value
+                        }
+                    }),
                     success: function(response) {
                         // Swiftmailer always sends back a number representing number of emails sent.
                         // If this is numeric (not Swift Mailer error text) AND greater than 0 then show success message.
