@@ -44,3 +44,7 @@
     font-weight: unset !important;
 
 }
+
+.place-card, .place-card-large {
+    display: none !important;
+}
