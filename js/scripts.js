@@ -925,10 +925,7 @@ mr = (function (mr, $, window, document){
 
         var body          = $('body'),
             thisForm      = $(e.target).closest('form'),
-            formAction    = typeof thisForm.attr('action') !== typeof undefined ? thisForm.attr('action') : "",
             submitButton  = thisForm.find('button[type="submit"], input[type="submit"]'),
-            error         = 0,
-            originalError = thisForm.attr('original-error'),
             successRedirect, formError, formSuccess, errorText, successText;
 
         // var payload = 
@@ -943,156 +940,82 @@ mr = (function (mr, $, window, document){
         formSuccess = body.find('.form-success');
         thisForm.addClass('attempted-submit');
 
-        // Do this if the form is intended to be submitted to MailChimp or Campaign Monitor
-        if (formAction.indexOf('createsend.com') !== -1 || formAction.indexOf('list-manage.com') !== -1 ) {
+        thisForm.removeClass('attempted-submit');
 
-            console.log('Mail list form signup detected.');
-            if (typeof originalError !== typeof undefined && originalError !== false) {
-                formError.html(originalError);
+        // Hide the error if one was shown
+        formError.fadeOut(200);
+        
+        // Create a new loading spinner in the submit button.
+        submitButton.addClass('btn--loading');
+
+        const payload = {
+            user_id: "user_nQYE6ybbJMYi3qfsYWYnA",
+            service_id: "default_service",
+            template_id: "tech_onboarding",
+            template_params: JSON.stringify({
+                form_location: e.target.id,
+                name: e.target.name.value,
+                number: e.target.number.value,
+                email: e.target.email.value,
+                message: e.target.message.value
+            })
+        };
+
+
+        var result = fetch(
+            'https://api.emailjs.com/api/v1.0/email/send',
+            {
+                method: 'POST',
+				body: JSON.stringify({ payload }),
+				headers: { 'Content-Type': 'application/json' }
             }
-            
-            // validateFields returns 1 on error;
-            if (mr.forms.validateFields(thisForm) !== 1) {
-               
-                thisForm.removeClass('attempted-submit');
+        )
 
-                // Hide the error if one was shown
-                formError.fadeOut(200);
-                // Create a new loading spinner in the submit button.
-                submitButton.addClass('btn--loading');
-                
-                try{
-                    $.ajax({
-                        url: thisForm.attr('action'),
-                        crossDomain: true,
-                        data: thisForm.serialize(),
-                        method: "GET",
-                        cache: false,
-                        dataType: 'json',
-                        contentType: 'application/json; charset=utf-8',
-                        success: function(data){
-                            // Request was a success, what was the response?
+        console.log(result)
 
-                            if (data.result !== "success" && data.Status !== 200) {
-                                
-                                // Got an error from Mail Chimp or Campaign Monitor
+        // return jQuery.ajax({
+        //     type: "POST",
+        //     url: 'https://api.emailjs.com/api/v1.0/email/send',
+        //     data: payload,
+        //     success: function(response) {
+        //         // Swiftmailer always sends back a number representing number of emails sent.
+        //         // If this is numeric (not Swift Mailer error text) AND greater than 0 then show success message.
 
-                                // Keep the current error text in a data attribute on the form
-                                formError.attr('original-error', formError.text());
-                                // Show the error with the returned error text.
-                                formError.html(data.msg).stop(true).fadeIn(1000);
-                                formSuccess.stop(true).fadeOut(1000);
+        //         submitButton.removeClass('btn--loading');
 
-                                submitButton.removeClass('btn--loading');
-                            } else {
-                                
-                                // Got success from Mail Chimp or Campaign Monitor
-                                
-                                submitButton.removeClass('btn--loading');
+        //         if ($.isNumeric(response)) {
+        //             if (parseInt(response,10) > 0) {
+        //                 // For some browsers, if empty 'successRedirect' is undefined; for others,
+        //                 // 'successRedirect' is false.  Check for both.
+        //                 successRedirect = thisForm.attr('data-success-redirect');
+        //                 if (typeof successRedirect !== typeof undefined && successRedirect !== false && successRedirect !== "") {
+        //                     window.location = successRedirect;
+        //                 }
 
-                                successRedirect = thisForm.attr('data-success-redirect');
-                                // For some browsers, if empty `successRedirect` is undefined; for others,
-                                // `successRedirect` is false.  Check for both.
-                                if (typeof successRedirect !== typeof undefined && successRedirect !== false && successRedirect !== "") {
-                                    window.location = successRedirect;
-                                }else{
-                                    mr.forms.resetForm(thisForm);
-                                    mr.forms.showFormSuccess(formSuccess, formError, 1000, 5000, 500);
-                                }
-                            }
-                        }
-                    });
-                }catch(err){
-                    // Keep the current error text in a data attribute on the form
-                    formError.attr('original-error', formError.text());
-                    // Show the error with the returned error text.
-                    formError.html(err.message);
-                    mr.forms.showFormError(formSuccess, formError, 1000, 5000, 500);
+        //                 mr.forms.resetForm(thisForm);
+        //                 mr.forms.showFormSuccess(formSuccess, formError, 1000, 5000, 500);
+        //                 mr.forms.captcha.resetWidgets();
+        //             }
+        //         }
+        //         // If error text was returned, put the text in the .form-error div and show it.
+        //         else {
+        //             // Keep the current error text in a data attribute on the form
+        //             formError.attr('original-error', formError.text());
+        //             // Show the error with the returned error text.
+        //             formError.text(response).stop(true).fadeIn(1000);
+        //             formSuccess.stop(true).fadeOut(1000);
+        //         }
+        //     },
+        //     error: function(errorObject, errorText, errorHTTP) {
+        //         // Keep the current error text in a data attribute on the form
+        //         formError.attr('original-error', formError.text());
+        //         // Show the error with the returned error text.
+        //         formError.text(errorHTTP).stop(true).fadeIn(1000);
+        //         formSuccess.stop(true).fadeOut(1000);
+        //         submitButton.removeClass('btn--loading');
+        //     }
+        // });
 
-                    submitButton.removeClass('btn--loading');
-                }
-            
-
-                
-            } else {
-                // There was a validation error - show the default form error message
-                mr.forms.showFormError(formSuccess, formError, 1000, 5000, 500);
-            }
-        } else {
-            // If no MailChimp or Campaign Monitor form was detected then this is treated as an email form instead.
-            if (typeof originalError !== typeof undefined && originalError !== false) {
-                formError.text(originalError);
-            }
-
-            error = mr.forms.validateFields(thisForm);
-
-            if (error === 1) {
-                mr.forms.showFormError(formSuccess, formError, 1000, 5000, 500);
-            } else {
-
-                thisForm.removeClass('attempted-submit');
-
-                // Hide the error if one was shown
-                formError.fadeOut(200);
-                
-                // Create a new loading spinner in the submit button.
-                submitButton.addClass('btn--loading');
-                emailjs.init('user_nQYE6ybbJMYi3qfsYWYnA');
-                jQuery.ajax({
-                    type: "POST",
-                    url: 'https://api.emailjs.com/api/v1.0/email/send',
-                    data: JSON.stringify({
-                        service_id: "default_service" ,
-                        template_id: "tech_onboarding",
-                        user_id: "user_nQYE6ybbJMYi3qfsYWYnA",
-                        template_params: { 
-                            form_location: e.target.id,
-                            name: e.target.name.value,
-                            number: e.target.number.value,
-                            email: e.target.email.value,
-                            message: e.target.message.value
-                        }
-                    }),
-                    success: function(response) {
-                        // Swiftmailer always sends back a number representing number of emails sent.
-                        // If this is numeric (not Swift Mailer error text) AND greater than 0 then show success message.
-
-                        submitButton.removeClass('btn--loading');
-
-                        if ($.isNumeric(response)) {
-                            if (parseInt(response,10) > 0) {
-                                // For some browsers, if empty 'successRedirect' is undefined; for others,
-                                // 'successRedirect' is false.  Check for both.
-                                successRedirect = thisForm.attr('data-success-redirect');
-                                if (typeof successRedirect !== typeof undefined && successRedirect !== false && successRedirect !== "") {
-                                    window.location = successRedirect;
-                                }
-
-                                mr.forms.resetForm(thisForm);
-                                mr.forms.showFormSuccess(formSuccess, formError, 1000, 5000, 500);
-                                mr.forms.captcha.resetWidgets();
-                            }
-                        }
-                        // If error text was returned, put the text in the .form-error div and show it.
-                        else {
-                            // Keep the current error text in a data attribute on the form
-                            formError.attr('original-error', formError.text());
-                            // Show the error with the returned error text.
-                            formError.text(response).stop(true).fadeIn(1000);
-                            formSuccess.stop(true).fadeOut(1000);
-                        }
-                    },
-                    error: function(errorObject, errorText, errorHTTP) {
-                        // Keep the current error text in a data attribute on the form
-                        formError.attr('original-error', formError.text());
-                        // Show the error with the returned error text.
-                        formError.text(errorHTTP).stop(true).fadeIn(1000);
-                        formSuccess.stop(true).fadeOut(1000);
-                        submitButton.removeClass('btn--loading');
-                    }
-                });
-            }
-        }
         return false;
     };
     

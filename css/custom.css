@@ -22,7 +22,8 @@
 
 
 .careers__benefits-list-item {
-    list-style-type: circle 
+    list-style-type: circle;
+    margin-bottom: 5px !important;
 }
 
 .careers__benefits-ul {
