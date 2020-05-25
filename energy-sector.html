@@ -154,7 +154,7 @@
             </section>
             <section class="switchable" id="contact">
                 <div class="container">
-                    <h2 class="text-left">Get In Touch</h2>
+                    <h2 class="text-left">Contact us</h2>
                     <div class="row justify-content-between">
                         <div class="col-md-5">
                             <p class="lead">
@@ -163,22 +163,29 @@
                                 <br /> P: 01484 719 860
                             </p>
                             <p class="lead">
-                                We check our calls and emails every day and respond to every message before the end of the next business day.
+                                Give us a call or drop by anytime, we endeavour to answer all enquiries within 24 hours on business days.
+                            </p>
+                            <p class="lead">
+                                We are open from 9am &mdash; 5pm week days.
                             </p>
                         </div>
                         <div class="col-md-6 col-12">
-                            <form class="form-email row" data-success="Thanks for your enquiry, we'll be in touch shortly." data-error="Please fill in all fields correctly.">
+                            <form id="Services" class="form-email row">
                                 <div class="col-md-6 col-12">
                                     <label>Your Name:</label>
-                                    <input type="text" name="Name" class="validate-required" />
+                                    <input type="text" name="name" class="validate-required" />
                                 </div>
                                 <div class="col-md-6 col-12">
+                                    <label>Number:</label>
+                                    <input type="text" name="number" class="validate-required validate-number" />
+                                </div>
+                                <div class="col-md-12 col-12">
                                     <label>Email Address:</label>
                                     <input type="email" name="email" class="validate-required validate-email" />
                                 </div>
                                 <div class="col-md-12 col-12">
                                     <label>Message:</label>
-                                    <textarea rows="4" name="Message" class="validate-required"></textarea>
+                                    <textarea rows="4" name="message" class="validate-required"></textarea>
                                 </div>
                                 <div class="col-md-5 col-lg-4 col-6">
                                     <button type="submit" class="btn btn--primary type--uppercase">Send Enquiry</button>
